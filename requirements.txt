@@ -1,0 +1,6 @@
+pybit
+loguru
+pandas
+together
+pandas-ta
+numpy==1.23.5

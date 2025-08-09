@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trading-bot-config
+  namespace: default
+data:
+  # Tyto hodnoty můžete snadno měnit přes Lens nebo `kubectl edit configmap`
+  # Zadejte seznam tickerů oddělených čárkou
+  TICKERS: "ETHPERP,BTCPERP,SOLPERP"
+  IS_DEMO: "True"
+  INTERVAL: "5"
+  LEVERAGE: "50"
+  RISK_PER_TRADE_USD: "20"
+  AI_MODEL_NAME: "openai/gpt-oss-120b"
+  # Interval v sekundách mezi jednotlivými běhy bota v režimu Deployment
+  SLEEP_INTERVAL_SECONDS: "300"

@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trading-bot-deployment
+  namespace: default
+  labels:
+    app: trading-bot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: trading-bot
+  template:
+    metadata:
+      labels:
+        app: trading-bot
+    spec:
+      volumes:
+        - name: trading-bot-logs
+          hostPath:
+            # Cesta na hostitelském uzlu.
+            # Adresář bude vytvořen, pokud neexistuje.
+            path: /mnt/tradingbot/logs
+            type: DirectoryOrCreate
+      containers:
+      - name: trading-bot-container
+        # Použije image z lokálního registru
+        image: localhost:5000/trading-bot:latest
+        imagePullPolicy: Always # Vždy stáhne nejnovější verzi image
+        volumeMounts:
+          - name: trading-bot-logs
+            mountPath: /app/logs
+        envFrom:
+          # Načtení všech hodnot z ConfigMap jako proměnné prostředí
+          - configMapRef:
+              name: trading-bot-config
+          # Načtení všech hodnot ze Secret jako proměnné prostředí
+          - secretRef:
+              name: trading-bot-secrets
+        # --- Health Probes ---
+        # Liveness probe kontroluje, zda kontejner stále běží a není zamrzlý.
+        livenessProbe:
+          exec:
+            command:
+            - test
+            - -f
+            - /app/main.py
+          initialDelaySeconds: 30
+          periodSeconds: 60
+        # Readiness probe kontroluje, zda je aplikace připravena přijímat provoz (zde spíše symbolické).
+        readinessProbe:
+          exec:
+            command:
+            - test
+            - -f
+            - /app/main.py
+          initialDelaySeconds: 15
+          periodSeconds: 30
+      restartPolicy: Always
